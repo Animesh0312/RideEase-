@@ -1,0 +1,22 @@
+# dependencies
+node_modules/
+
+# environment variables
+.env
+
+# build output
+dist/
+
+# Firebase files
+.firebase/
+firebase-debug.log
+
+# IDE files
+.vscode
+.idea
+
+# OS files
+.DS_Store
+
+# Log files
+*.log

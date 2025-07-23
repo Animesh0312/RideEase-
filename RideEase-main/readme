@@ -1,0 +1,82 @@
+#🚗 RideEase – Modern Ride-Hailing Platform
+
+Welcome to **RideEase**, a sleek and secure ride-hailing web application redefining urban transportation. 
+Designed for ease, safety, and affordability, RideEase offers real-time ride booking with multiple vehicle options and an innovative **Buddy Ride** system.
+
+---
+
+## 🌟 Key Features
+
+### 🚘 Multiple Ride Options
+- **RideEase Mini** – Compact 4-seater for daily commutes 🧳  
+- **RideEase Sedan** – Premium comfort, perfect for business travel 💼  
+- **RideEase Moto** – Fast single-seater bike for quick city trips 🏍️  
+- **AutoEase** – 3-seater auto rickshaw for short rides on a budget 🚜  
+
+---
+
+### 🛡️ Safety-Focused
+- **Pink Rides** – Female-only rides with verified female drivers 👩‍🦰  
+- **Real-Time Tracking** – Monitor your ride from pickup to drop-off 📍  
+- **Secure Payments** – Pay safely with Card, Wallet, or Cash 💳  
+- **Verified Drivers** – Every driver is background-checked ✅  
+
+---
+
+### 🤝 Buddy Ride System
+- Share rides with others heading your way 🚘➡️🚘  
+- **Split Fare** – Automatically divide ride cost 💸  
+- Create or join rides in real-time  
+- Female-only buddy rides for added safety  
+
+---
+
+### 🧑‍💻 User-Centric Design
+- Real-time fare estimator  
+- Google Maps integration with accurate driver ETA  
+- Multi-language support: 🇬🇧 English | 🇮🇳 Hindi | 🇪🇸 Español  
+- Detect current location for quick booking  
+- Schedule rides for later 🕒  
+
+---
+
+## 🧰 Tech Stack
+
+| Layer | Tools |
+|-------|-------|
+| **Frontend** | HTML5, Tailwind CSS, JavaScript |
+| **Maps** | Google Maps API |
+| **Auth** | Firebase Authentication |
+| **Realtime** | Firebase Realtime Database |
+| **PWA** | Fully installable Progressive Web App |
+
+---
+
+## 🚀 Booking Experience
+
+1. Enter **pickup** and **drop-off** locations  
+2. Get **instant fare estimates**  
+3. Choose your ride (Mini, Sedan, Moto, AutoEase)  
+4. Opt for **Buddy Ride** if desired  
+5. Select **payment mode** and **confirm**  
+6. Track your ride live until you reach safely 🛡️  
+
+---
+
+
+## 🛠️ Setup & Run Locally
+
+```bash
+# Clone the repo
+git clone https://github.com/your-username/rideease.git
+cd rideease
+
+# Install dependencies
+npm install
+
+# Set up environment
+cp .env.example .env
+# Add your Firebase and Google Maps API keys
+
+# Run the development server
+npm run dev

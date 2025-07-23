@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <title>RideEase - Buddy Ride Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8fafc;
+        }
+        
+        .header-gradient {
+            background: #000000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        
+        .button-effect {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .button-effect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: white;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .ride-card {
+            transition: all 0.3s ease;
+        }
+        
+        .ride-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-logo {
+            height: 2.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        @media (min-width: 768px) {
+            .header-logo {
+                height: 3rem;
+            }
+        }
+
+        .user-dropdown {
+            position: relative;
+        }
+
+        .user-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem 0;
+            min-width: 160px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .user-dropdown-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .user-dropdown-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #374151;
+            text-decoration: none;
+        }
+
+        .user-dropdown-item:hover {
+            background: #f8f9fa;
+        }
+
+        .user-btn {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .user-btn:hover {
+            opacity: 0.9;
+        }
+
+        .chevron-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .chevron-icon.active {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="fixed w-full top-0 z-50 header-gradient">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-12">
+                    <a href="landing.html" class="flex items-center space-x-2">
+                        <img src="../images/blacklogo.png" alt="RideEase Logo" class="header-logo brightness-0 invert"/>
+                    </a>
+                    <nav class="hidden md:flex space-x-8">
+                        <a href="booking.html" class="nav-link text-white hover:text-gray-200">Ride</a>
+                        <a href="booking.html" class="nav-link text-white hover:text-gray-200">Drive</a>
+                        <a href="#" class="nav-link text-white hover:text-gray-200">Business</a>
+                        <a href="buddyride.html" class="nav-link text-white hover:text-gray-200 font-bold">Buddy Ride</a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <a href="#" class="text-white hover:text-gray-200">Help</a>
+                    <div class="user-dropdown">
+                        <button class="user-btn" onclick="toggleUserDropdown()">
+                            <i class="fas fa-user-circle"></i>
+                            <span>Hi Piyush</span>
+                            <i class="fas fa-chevron-down chevron-icon"></i>
+                        </button>
+                        <div class="user-dropdown-menu">
+                            <a href="login.html" class="user-dropdown-item">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </a>
+                            <a href="login.html" class="user-dropdown-item">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>Sign in again</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="pt-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800">Buddy Ride Dashboard</h1>
+            <button onclick="openBuddyRideModal()" 
+                    class="button-effect bg-[#007BFF] text-white font-semibold rounded-xl px-6 py-3 hover:bg-blue-600">
+                <i class="fas fa-plus mr-2"></i>
+                Post New Buddy Ride
+            </button>
+        </div>
+
+        <!-- Filters & Stats -->
+        <div class="glass-effect rounded-xl p-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="text-center p-4 bg-blue-50 rounded-lg">
+                    <div class="text-3xl font-bold text-blue-600 mb-1" id="total-rides">0</div>
+                    <div class="text-sm text-gray-600">Active Buddy Rides</div>
+                </div>
+                <div class="text-center p-4 bg-green-50 rounded-lg">
+                    <div class="text-3xl font-bold text-green-600 mb-1" id="total-joined">0</div>
+                    <div class="text-sm text-gray-600">Rides Joined</div>
+                </div>
+                <div class="text-center p-4 bg-purple-50 rounded-lg">
+                    <div class="text-3xl font-bold text-purple-600 mb-1">₹150</div>
+                    <div class="text-sm text-gray-600">Avg. Savings/Ride</div>
+                </div>
+                <div class="text-center p-4 bg-orange-50 rounded-lg">
+                    <div class="text-3xl font-bold text-orange-600 mb-1" id="total-saved">₹0</div>
+                    <div class="text-sm text-gray-600">Total Savings</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rides List -->
+        <div class="space-y-6" id="buddy-rides-list">
+            <!-- Buddy ride cards will be inserted here by JavaScript -->
+        </div>
+    </main>
+
+    <!-- Include the Buddy Ride Modal -->
+    <div id="buddy-ride-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+            <div class="glass-effect rounded-2xl p-6 max-w-md w-full mx-auto space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-semibold">Create Buddy Ride</h3>
+                    <button onclick="closeBuddyRideModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <form id="buddy-ride-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Pickup Location</label>
+                        <input type="text" id="buddy-pickup" class="w-full rounded-xl py-3 px-4 bg-gray-50" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Destination</label>
+                        <input type="text" id="buddy-dropoff" class="w-full rounded-xl py-3 px-4 bg-gray-50" required>
+                    </div>
+                    <div class="flex space-x-4">
+                        <div class="flex-1">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                            <input type="date" id="buddy-date" class="w-full" required>
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                            <input type="time" id="buddy-time" class="w-full" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Ride Type</label>
+                        <select id="buddy-ride-type" class="w-full rounded-xl py-3 px-4 bg-gray-50" required>
+                            <option value="">Select a ride type</option>
+                            <option value="auto">AutoEase (₹10/km)</option>
+                            <option value="mini">RideEase Mini (₹15/km)</option>
+                            <option value="sedan">RideEase Sedan (₹22/km)</option>
+                            <option value="moto">RideEase Moto (₹8/km)</option>
+                        </select>
+                    </div>
+                    <div class="p-4 bg-blue-50 rounded-xl space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Per km rate:</span>
+                            <span class="font-medium" id="per-km-rate">₹0/km</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Estimated distance:</span>
+                            <span class="font-medium" id="estimated-distance">0 km</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Estimated fare:</span>
+                            <span class="font-bold text-lg" id="estimated-fare">₹0</span>
+                        </div>
+                        <div class="text-xs text-blue-600 mt-2">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            If someone joins, your fare will be split 50-50!
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-[#007BFF] text-white font-semibold rounded-xl py-3 hover:bg-blue-600">
+                        Create Buddy Ride
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="buddy-ride-success" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+            <div class="glass-effect rounded-2xl p-6 max-w-md w-full mx-auto space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-semibold text-green-600">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        Buddy Ride Created!
+                    </h3>
+                    <button onclick="closeBuddyRideSuccess()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <p class="text-gray-600">Your buddy ride has been created. We'll notify you when someone joins.</p>
+                <div id="ride-summary" class="bg-gray-50 rounded-xl p-4">
+                    <!-- Ride details will be inserted here -->
+                </div>
+                <button onclick="closeBuddyRideSuccess()" class="w-full bg-black text-white font-semibold rounded-xl py-3 hover:bg-gray-900">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ride Confirmation Modal -->
+    <div id="ride-confirmation-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+            <div class="glass-effect rounded-2xl p-6 max-w-md w-full mx-auto space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-semibold text-green-600">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        🎉 Ride Confirmed!
+                    </h3>
+                    <button onclick="closeRideConfirmationModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="confirmation-details" class="space-y-3">
+                    <!-- Confirmation details will be inserted here -->
+                </div>
+                <button onclick="closeRideConfirmationModal()" class="w-full bg-black text-white font-semibold rounded-xl py-3 hover:bg-gray-900">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Coming Soon Modal -->
+    <div id="coming-soon-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+            <div class="glass-effect rounded-2xl p-6 max-w-md w-full mx-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold">🚧 Feature Coming Soon!</h3>
+                    <button onclick="closeModal('coming-soon-modal')" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <p class="text-gray-600">Stay tuned as we're working on something exciting.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+            <div class="glass-effect rounded-2xl p-6 max-w-md w-full mx-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold">📧 Contact Us</h3>
+                    <button onclick="closeModal('help-modal')" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <p class="text-gray-600">Contact Us at: support@rideease.com</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update script path -->
+    <script src="/static/js/buddy-ride.js"></script>
+    <script>
+        function toggleUserDropdown() {
+            const dropdownMenu = document.querySelector('.user-dropdown-menu');
+            const chevronIcon = document.querySelector('.chevron-icon');
+            dropdownMenu.classList.toggle('active');
+            chevronIcon.classList.toggle('active');
+        }
+
+        // Modal handling functions
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        // Add click handlers after window loads
+        window.addEventListener('load', function() {
+            // Update Drive link
+            const driveLinks = document.querySelectorAll('a[href="booking.html"].nav-link');
+            driveLinks.forEach(link => {
+                if (link.textContent.trim() === 'Drive') {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        showModal('coming-soon-modal');
+                    });
+                }
+            });
+
+            // Update Business link
+            document.querySelector('a[href="#"].nav-link').addEventListener('click', function(e) {
+                e.preventDefault();
+                showModal('coming-soon-modal');
+            });
+
+            // Update Help link
+            document.querySelector('a[href="#"]:not(.nav-link)').addEventListener('click', function(e) {
+                e.preventDefault();
+                showModal('help-modal');
+            });
+        });
+    </script>
+</body>
+</html>

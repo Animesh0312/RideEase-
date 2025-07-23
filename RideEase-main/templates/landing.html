@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <title>RideEase</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <script type="module">
+        const MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+        const mapsScript = document.createElement('script');
+        mapsScript.src = `https://maps.googleapis.com/maps/api/js?key=${MAPS_API_KEY}&libraries=places`;
+        document.head.appendChild(mapsScript);
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #ffffff;
+        }
+
+        .gradient-overlay {
+            background: linear-gradient(to right, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0) 100%);
+        }
+
+        .nav-link {
+            position: relative;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: white;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .hero-input {
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            border: 2px solid transparent;
+        }
+
+        .hero-input:focus {
+            background: #ffffff;
+            border-color: #000;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .button-effect {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .button-effect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .location-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .location-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .location-suggestion {
+            padding: 1rem;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .location-suggestion:hover {
+            background: #f8f9fa;
+            transform: translateX(4px);
+        }
+
+        .location-suggestion i {
+            color: #000;
+            font-size: 1.25rem;
+        }
+
+        .hero-section {
+            position: relative;
+            min-height: calc(100vh - 80px);
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('path-to-pattern.png') repeat;
+            opacity: 0.1;
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+             0%, 100% { transform: translateY(0); }
+             50% { transform: translateY(-10px); }
+        }
+
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-gradient {
+            background: #000000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .lang-dropdown {
+            position: relative;
+        }
+
+        .lang-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem 0;
+            min-width: 160px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .lang-dropdown:hover .lang-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .lang-option {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .lang-option:hover {
+            background: #f8f9fa;
+        }
+
+        .hero-title {
+            position: relative;
+            display: inline-block;
+        }
+
+        .hero-highlight {
+            background: linear-gradient(135deg, #ff6b00, #ffa000);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            position: relative;
+            display: inline-block;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            animation: shine 3s infinite;
+        }
+
+        .hero-highlight::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, 
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.8) 50%,
+                rgba(255,255,255,0) 100%);
+            transform: translateX(-100%);
+            animation: shine-effect 3s infinite;
+        }
+
+        @keyframes shine-effect {
+            0% { transform: translateX(-100%); }
+            20% { transform: translateX(100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        input[type="date"],
+        input[type="time"] {
+            appearance: none;
+            background: #f8f9fa;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 1rem;
+            font-family: 'Poppins', sans-serif;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        input[type="date"]:focus,
+        input[type="time"]:focus {
+            outline: none;
+            border-color: #000;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator,
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            background: none;
+            color: #000;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        /* Enhanced Button Styles */
+        .datetime-btn {
+            background: white;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .datetime-btn:hover {
+            border-color: #000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+
+        /* Enhanced Logo Styles */
+        .header-logo {
+            height: 2.5rem; /* Increased from 2rem (h-8) */
+            transition: transform 0.3s ease;
+        }
+
+        @media (min-width: 768px) {
+            .header-logo {
+                height: 3rem;
+            }
+        }
+
+        .header-logo:hover {
+            transform: scale(1.05);
+        }
+
+        /* Scroll Behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .scroll-btn {
+            transition: all 0.3s ease;
+        }
+
+        .scroll-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .user-dropdown {
+            position: relative;
+        }
+
+        .user-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem 0;
+            min-width: 160px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .user-dropdown-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .user-dropdown-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #374151;
+        }
+
+        .user-dropdown-item:hover {
+            background: #f8f9fa;
+        }
+
+        .user-btn {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .user-btn:hover {
+            opacity: 0.9;
+        }
+
+        .chevron-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .chevron-icon.active {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body>
+    <!-- Updated Header with Larger Logo -->
+    <header class="fixed w-full top-0 z-50 header-gradient">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-12">
+                    <a href="/landing" class="flex items-center space-x-2">
+                        <img src="../images/blacklogo.png" alt="RideEase Logo" class="header-logo brightness-0 invert"/>
+                    </a>
+                    <nav class="hidden md:flex space-x-8">
+                        <a href="booking.html" class="nav-link text-white hover:text-gray-200">Ride</a>
+                        <a href="buddyride.html" class="nav-link text-white hover:text-gray-200">Buddy Ride</a>
+                        <a href="#" class="nav-link text-white hover:text-gray-200">Drive</a>
+                        <a href="booking" class="nav-link text-white hover:text-gray-200">Business</a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <div class="lang-dropdown">
+                        <button class="flex items-center space-x-2 text-white hover:text-gray-200">
+                            <i class="fas fa-globe-americas"></i>
+                            <span id="selected-lang">EN</span>
+                            <i class="fas fa-chevron-down text-sm ml-1"></i>
+                        </button>
+                        <div class="lang-menu">
+                            <div class="lang-option" onclick="changeLanguage('en')">
+                                <span>🇺🇸</span> English
+                            </div>
+                            <div class="lang-option" onclick="changeLanguage('hi')">
+                                <span>🇮🇳</span> हिंदी
+                            </div>
+                            <div class="lang-option" onclick="changeLanguage('es')">
+                                <span>🇪🇸</span> Español
+                            </div>
+                        </div>
+                    </div>
+                    <a href="#" class="text-white hover:text-gray-200">Help</a>
+                    <div class="user-dropdown">
+                        <button class="user-btn" onclick="toggleUserDropdown()">
+                            <i class="fas fa-user-circle"></i>
+                            <span>Hi Piyush</span>
+                            <i class="fas fa-chevron-down chevron-icon"></i>
+                        </button>
+                        <div class="user-dropdown-menu">
+                            <a href="login.html" class="user-dropdown-item">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </a>
+                            <a href="login.html" class="user-dropdown-item">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>Sign in again</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-20">
+        <section id="booking" class="hero-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                    <div class="space-y-8">
+                        <h1 class="text-6xl font-bold leading-tight hero-title">
+                            Go anywhere with
+                            <span class="hero-highlight">RideEase</span>
+                        </h1>
+                        
+                        <div class="glassmorphism rounded-2xl p-8 space-y-6">
+                            <div class="flex space-x-4">
+                                <button 
+                                    onclick="scrollToBooking()"
+                                    class="scroll-btn button-effect flex flex-col items-center justify-center bg-black text-white rounded-xl px-6 py-4 w-32 hover:bg-gray-900"
+                                >
+                                    <i class="fas fa-car text-2xl mb-2"></i>
+                                    <span class="font-medium">Ride</span>
+                                </button>
+                            </div>
+
+                            <form id="booking-form" class="space-y-4">
+                                <div class="relative">
+                                    <input 
+                                        type="text" 
+                                        id="pickup"
+                                        placeholder="Enter pickup location"
+                                        class="hero-input w-full rounded-xl py-4 px-12 text-gray-700"
+                                    />
+                                    <i class="fas fa-map-marker-alt absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                                    <button type="button" onclick="getCurrentLocation()" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black">
+                                        <i class="fas fa-location-arrow"></i>
+                                    </button>
+                                    <div id="pickup-suggestions" class="location-dropdown absolute w-full mt-2"></div>
+                                </div>
+
+                                <div class="relative">
+                                    <input 
+                                        type="text" 
+                                        id="dropoff"
+                                        placeholder="Enter destination"
+                                        class="hero-input w-full rounded-xl py-4 px-12 text-gray-700"
+                                    />
+                                    <i class="fas fa-square absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                                    <div id="dropoff-suggestions" class="location-dropdown absolute w-full mt-2"></div>
+                                </div>
+
+                                <div class="flex space-x-4">
+                                    <button 
+                                        type="button" 
+                                        id="date-btn" 
+                                        class="datetime-btn flex-1 rounded-xl py-4 px-6 text-gray-700 font-medium"
+                                    >
+                                        <i class="fas fa-calendar-alt mr-2"></i>
+                                        <span>Today</span>
+                                    </button>
+                                    <button 
+                                        type="button" 
+                                        id="time-btn" 
+                                        class="datetime-btn flex-1 rounded-xl py-4 px-6 text-gray-700 font-medium"
+                                    >
+                                        <i class="fas fa-clock mr-2"></i>
+                                        <span>Now</span>
+                                    </button>
+                                </div>
+
+                                <div class="flex items-center space-x-6">
+                                    <button 
+                                        type="button"
+                                        onclick="handleBooking()"
+                                        class="button-effect bg-black text-white font-medium rounded-xl px-8 py-4 w-1/2 hover:bg-gray-900"
+                                    >
+                                        See prices
+                                    </button>
+                                    <a href="login.html" class="text-gray-600 underline hover:text-black">
+                                       
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="hidden lg:block">
+                        <div class="relative rounded-2xl overflow-hidden shadow-2xl h-[600px]">
+                            <div id="map" class="w-full h-full"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-20 bg-gray-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold mb-4">Why choose RideEase?</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">Experience the future of transportation with our seamless ride-hailing service.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="feature-card bg-white p-6 rounded-xl">
+                        <div class="w-12 h-12 bg-black rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-shield-alt text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Safe and Secure</h3>
+                        <p class="text-gray-600">Verified drivers and real-time trip monitoring for your peace of mind.</p>
+                    </div>
+
+                    <div class="feature-card bg-white p-6 rounded-xl">
+                        <div class="w-12 h-12 bg-black rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-bolt text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Quick Pickup</h3>
+                        <p class="text-gray-600">Get a ride within minutes, anytime and anywhere.</p>
+                    </div>
+
+                    <div class="feature-card bg-white p-6 rounded-xl">
+                        <div class="w-12 h-12 bg-black rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-wallet text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Best Prices</h3>
+                        <p class="text-gray-600">Competitive rates and transparent pricing with no hidden charges.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-black text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div>
+                    <h4 class="font-semibold mb-4">Company</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">About us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Careers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Blog</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Products</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Ride</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Drive</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Business</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Support</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Help Center</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Safety</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Contact us</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Download</h4>
+                    <div class="space-y-2">
+                        <a href="#" class="block">
+                            <img src="images/image.png" and="Download on App Store" class="h-10"/>
+                        </a>
+                        <a href="#" class="block">
+                            <img src="images/image copy.png" alt="Get it on Google Play" class="h-10"/>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-12 pt-8 border-t border-gray-800">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="flex items-center space-x-4">
+                        <img src="/blacklogo.png" alt="RideEase" class="h-8 w-auto brightness-0 invert"/>
+                        <span class="text-gray-400">&copy; 2024 RideEase. All rights reserved.</span>
+                    </div>
+                    <div class="flex space-x-6 mt-4 md:mt-0">
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Add modals before the closing body tag -->
+    <!-- Coming Soon Modal -->
+    <div id="coming-soon-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold text-gray-800">🚧 Feature Coming Soon!</h3>
+                    <button onclick="closeModal('coming-soon-modal')" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <p class="text-gray-600">Stay tuned as we're working on something exciting.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold text-gray-800">📧 Contact Us</h3>
+                    <button onclick="closeModal('help-modal')" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <p class="text-gray-600">Contact Us at: support@rideease.com</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let map, autocompleteService, placesService;
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 30.4159, lng: 77.9642 },
+                zoom: 13
+            });
+
+            autocompleteService = new google.maps.places.AutocompleteService();
+            placesService = new google.maps.places.PlacesService(map);
+
+            setupLocationInputs();
+            setupDateTimePickers();
+        }
+
+        function setupLocationInputs() {
+            const pickupInput = document.getElementById('pickup');
+            const dropoffInput = document.getElementById('dropoff');
+            const pickupSuggestions = document.getElementById('pickup-suggestions');
+            const dropoffSuggestions = document.getElementById('dropoff-suggestions');
+
+            function setupLocationInput(input, suggestionsContainer) {
+                let debounceTimer;
+
+                input.addEventListener('input', () => {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        const query = input.value;
+                        if (query.length >= 3) {
+                            getPlacePredictions(query, suggestionsContainer, (place) => {
+                                input.value = place.formatted_address;
+                                suggestionsContainer.classList.remove('active');
+                            });
+                        }
+                    }, 300);
+                });
+
+                input.addEventListener('focus', () => {
+                    if (input.value.length >= 3) {
+                        suggestionsContainer.classList.add('active');
+                    }
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!input.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+                        suggestionsContainer.classList.remove('active');
+                    }
+                });
+            }
+
+            setupLocationInput(pickupInput, pickupSuggestions);
+            setupLocationInput(dropoffInput, dropoffSuggestions);
+        }
+
+        function getPlacePredictions(query, container, onSelect) {
+            autocompleteService.getPlacePredictions(
+                { input: query, componentRestrictions: { country: 'IN' } },
+                (predictions, status) => {
+                    if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
+                        container.innerHTML = '';
+                        container.classList.add('active');
+
+                        predictions.forEach(prediction => {
+                            const div = document.createElement('div');
+                            div.className = 'location-suggestion';
+                            div.innerHTML = `
+                                <i class="fas fa-map-marker-alt"></i>
+                                <div>
+                                    <div class="font-medium">${prediction.structured_formatting.main_text}</div>
+                                    <div class="text-sm text-gray-500">${prediction.structured_formatting.secondary_text}</div>
+                                </div>
+                            `;
+
+                            div.addEventListener('click', () => {
+                                placesService.getDetails(
+                                    { placeId: prediction.place_id },
+                                    (place, status) => {
+                                        if (status === google.maps.places.PlacesServiceStatus.OK) {
+                                            onSelect(place);
+                                        }
+                                    }
+                                );
+                            });
+
+                            container.appendChild(div);
+                        });
+                    }
+                }
+            );
+        }
+
+        function setupDateTimePickers() {
+            const dateBtn = document.getElementById('date-btn');
+            const timeBtn = document.getElementById('time-btn');
+            
+            const dateInput = document.createElement('input');
+            dateInput.type = 'date';
+            dateInput.min = new Date().toISOString().split('T')[0];
+            dateInput.valueAsDate = new Date();
+            
+            dateBtn.appendChild(dateInput);
+            
+            const timeInput = document.createElement('input');
+            timeInput.type = 'time';
+            const now = new Date();
+            timeInput.value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            
+            timeBtn.appendChild(timeInput);
+            
+            dateInput.addEventListener('change', (e) => {
+                const selectedDate = new Date(e.target.value);
+                const today = new Date();
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                
+                let displayText = 'Today';
+                if (selectedDate.toDateString() === tomorrow.toDateString()) {
+                    displayText = 'Tomorrow';
+                } else if (selectedDate > tomorrow) {
+                    displayText = selectedDate.toLocaleDateString('en-US', {
+                        weekday: 'short',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                }
+                
+                dateBtn.querySelector('span').textContent = displayText;
+            });
+            
+            timeInput.addEventListener('change', (e) => {
+                const [hours, minutes] = e.target.value.split(':');
+                const date = new Date();
+                date.setHours(parseInt(hours));
+                date.setMinutes(parseInt(minutes));
+                
+                const formattedTime = date.toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                });
+                
+                timeBtn.querySelector('span').textContent = formattedTime;
+            });
+        }
+
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    
+                    const geocoder = new google.maps.Geocoder();
+                    geocoder.geocode({ location: pos }, (results, status) => {
+                        if (status === 'OK') {
+                            document.getElementById('pickup').value = results[0].formatted_address;
+                        }
+                    });
+                });
+            }
+        }
+
+        function handleBooking() {
+            const pickup = document.getElementById('pickup').value;
+            const dropoff = document.getElementById('dropoff').value;
+            const date = document.getElementById('date-btn').querySelector('span').textContent;
+            const time = document.getElementById('time-btn').querySelector('span').textContent;
+
+            if (!pickup || !dropoff) {
+                alert('Please enter both pickup and dropoff locations');
+                return;
+            }
+
+            const bookingDetails = {
+                pickup,
+                dropoff,
+                date,
+                time
+            };
+            sessionStorage.setItem('bookingDetails', JSON.stringify(bookingDetails));
+
+            window.location.href = '/templates/booking.html';
+        }
+
+        function changeLanguage(lang) {
+            const langMap = {
+                'en': 'English',
+                'hi': 'हिंदी',
+                'es': 'Español'
+            };
+            
+            document.getElementById('selected-lang').textContent = lang.toUpperCase();
+            
+            if (lang === 'hi') {
+                document.querySelector('.hero-title').innerHTML = `
+                    कहीं भी जाएं
+                    <span class="hero-highlight">राइडईज़</span> के साथ
+                `;
+            } else if (lang === 'es') {
+                document.querySelector('.hero-title').innerHTML = `
+                    Ve a cualquier lugar con
+                    <span class="hero-highlight">RideEase</span>
+                `;
+            } else {
+                document.querySelector('.hero-title').innerHTML = `
+                    Go anywhere with
+                    <span class="hero-highlight">RideEase</span>
+                `;
+            }
+        }
+
+        function scrollToBooking() {
+            const bookingSection = document.getElementById('booking');
+            bookingSection.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+
+        function toggleUserDropdown() {
+            const dropdownMenu = document.querySelector('.user-dropdown-menu');
+            const chevronIcon = document.querySelector('.chevron-icon');
+            dropdownMenu.classList.toggle('active');
+            chevronIcon.classList.toggle('active');
+        }
+
+        // Modal handling functions
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        // Add click handlers after window loads
+        window.addEventListener('load', function() {
+            // Update Drive links (both in nav and footer)
+            const driveLinks = document.querySelectorAll('a[href="#"].nav-link, a[href="#"].text-gray-400');
+            driveLinks.forEach(link => {
+                if (link.textContent.trim() === 'Drive') {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        showModal('coming-soon-modal');
+                    });
+                }
+            });
+
+            // Update Business link
+            document.querySelector('a[href="booking"].nav-link').addEventListener('click', function(e) {
+                if (this.textContent.trim() === 'Business') {
+                    e.preventDefault();
+                    showModal('coming-soon-modal');
+                }
+            });
+
+            // Update Help link
+            document.querySelector('a[href="#"]').addEventListener('click', function(e) {
+                if (this.textContent.trim() === 'Help') {
+                    e.preventDefault();
+                    showModal('help-modal');
+                }
+            });
+        });
+
+        window.onload = initMap;
+    </script>
+</body>
+</html>
