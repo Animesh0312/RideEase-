@@ -9,17 +9,17 @@
 - 🧍‍♂️🧍‍♀️ User Registration and Authentication
 - 📍 Ride Creation and Join Requests
 - 🔍 Search for available rides by route or time
-- 🗺️ View routes and locations (Map integration optional)
-- 💬 Messaging or contact system (optional feature)
+- 🗺️ View routes and locations 
+- 💬 Messaging 
 - 🎨 Clean and responsive UI
 
 ---
 
 ## 🛠️ Tech Stack
 
-- Frontend: React (or plain HTML/CSS/JS depending on your setup)
-- Backend: Node.js / Express (if applicable)
-- Database: MongoDB / Firebase (if used)
+- Frontend: HTML/CSS/JS 
+- Backend: Node.js 
+- Database: Firebase 
 - Version Control: Git & GitHub
 
 ---
